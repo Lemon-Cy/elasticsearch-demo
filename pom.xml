@@ -114,21 +114,28 @@
             <artifactId>druid-spring-boot-starter</artifactId>
             <version>1.2.8</version>
         </dependency>
+
         <!-- MySql jdbc 驱动 -->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.27</version>
         </dependency>
+
+        <!--工具包-->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
+
+        <!--lombok-->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
+
+        <!--fastjson-->
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
@@ -157,4 +164,5 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
 </project>

@@ -52,10 +52,10 @@ public class MybatisPlusGenerator {
         //2. 数据源配置
         DataSourceConfig dsConfig = new DataSourceConfig();
         dsConfig.setDbType(DbType.MYSQL)
-                .setUrl("jdbc:mysql://120.26.1.75:3306/es_demo?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true")
+                .setUrl("jdbc:mysql://localhost:3306/es_demo?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true")
                 .setDriverName("com.mysql.cj.jdbc.Driver")
                 .setUsername("root")
-                .setPassword("012758cy");
+                .setPassword("root");
         //3.策略配置
         StrategyConfig stConfig = new StrategyConfig();
         stConfig.setCapitalMode(true) // 全局大写命名
