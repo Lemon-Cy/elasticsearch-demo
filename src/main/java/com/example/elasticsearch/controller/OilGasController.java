@@ -14,7 +14,6 @@ import io.swagger.annotations.ApiOperation;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.data.domain.Page;
@@ -23,7 +22,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
-import org.springframework.data.elasticsearch.core.query.IndexQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.data.elasticsearch.core.query.Query;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,7 +31,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -85,18 +82,21 @@ public class OilGasController {
     @GetMapping("getByKeyword")
     @ApiOperation("根据关键字查询")
     public Result<EsResponsePage<OilGas>> getByKeyWord(@NonNull String keyword, RequestPage requestPage) throws IllegalAccessException {
-        HighlightBuilder highlightBuilder = EsUtils.getHighlightBuilder();
-        highlightBuilder.field("gasName");
-        highlightBuilder.field("gasAddress");
-        highlightBuilder.field("provinceName");
         PageRequest pageRequest = PageRequest.of(requestPage.getCurrent() - 1, requestPage.getSize());
         Query query = new NativeSearchQueryBuilder()
-                .withQuery(QueryBuilders.multiMatchQuery(keyword, "gasName", "gasAddress", "provinceName"))
+                .withQuery(QueryBuilders.queryStringQuery(keyword)
+                        .field("gasName", 10)
+                        .field("gasAddress", 8)
+                        .field("provinceName", 6))
                 .withPageable(pageRequest)
                 .withSort(SortBuilders.scoreSort())
                 .withMinScore(8)
                 .withSort(SortBuilders.fieldSort("addTime").order(SortOrder.DESC))
-                .withHighlightBuilder(highlightBuilder)
+                //配置主要字段高亮显示
+                .withHighlightBuilder(EsUtils.getHighlightBuilder()
+                        .field("gasName")
+                        .field("gasAddress")
+                        .field("provinceName"))
                 .build();
         SearchHits<OilGas> searchHits = elasticRestTemplate.search(query, OilGas.class);
         //封装page对象

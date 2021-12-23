@@ -13,7 +13,6 @@ import io.swagger.annotations.ApiOperation;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.data.domain.Page;
@@ -85,10 +84,6 @@ public class MedicineController {
     @ApiOperation("根据关键字查询")
     @ApiImplicitParam(name = "keyword", value = "关键字", example = "板蓝根")
     public Result<EsResponsePage<MedicineInfo>> getByKeyWord(@NonNull String keyword, RequestPage requestPage) throws IllegalAccessException {
-        HighlightBuilder highlightBuilder = EsUtils.getHighlightBuilder();
-        //配置标题高亮显示
-        highlightBuilder.field("gname");
-        highlightBuilder.field("medicineComponent");
         PageRequest pageRequest = PageRequest.of(requestPage.getCurrent() - 1, requestPage.getSize());
         Query query = new NativeSearchQueryBuilder()
                 .withQuery(QueryBuilders.queryStringQuery(keyword)
@@ -98,7 +93,10 @@ public class MedicineController {
                 .withSort(SortBuilders.scoreSort())
                 .withMinScore(5)
                 .withSort(SortBuilders.fieldSort("id").order(SortOrder.ASC))
-                .withHighlightBuilder(highlightBuilder)
+                //配置主要字段高亮显示
+                .withHighlightBuilder(EsUtils.getHighlightBuilder()
+                        .field("gname")
+                        .field("medicineComponent"))
                 .build();
         SearchHits<MedicineInfo> searchHits = elasticRestTemplate.search(query, MedicineInfo.class);
         //封装page对象
